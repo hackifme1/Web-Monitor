@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>Web Monitor</title>
+    <link href="style/picker/standalone.min.css" rel="stylesheet" />
+    <link href="style/picker/clockpicker.min.css" rel="stylesheet" />
+    <link href="style/settings.css" rel="stylesheet" />
+    <script src="scripts/common.js"></script>
+    <script src="scripts/storage.js"></script>
+    <script src="scripts/settings.js"></script>
+    <script src="scripts/restriction.js"></script>
+    <script src="scripts/picker/jquery-3.3.1.min.js"></script>
+    <script src="scripts/picker/clockpicker.min.js"></script>
+</head>
+
+<body>
+    <div class="content">
+        <div class="header">
+            <p class="title">Web Monitor</p>
+        </div>
+        <div id='nav' class="nav">
+            <a id='settingsBtn' class="active">Settings</a>
+            <a id='restrictionsBtn'>Limits</a>
+            <a id='notifyBtn'>Notifications</a>
+            <a id='aboutBtn'>About</a>
+            <a id='feedbackBtn'>Feedback</a>
+        </div>
+        <div id='block'>
+            <div id='settingsBlock'>
+                <label>
+                    <input type="checkbox" class="filled-in" id="viewTimeInBadge" checked="checked" />
+                    <span>Display time tracker in icon</span>
+                </label>
+                <div class="margin-top-10">
+                    <label>
+                        <input type="checkbox" class="filled-in" id="darkMode" />   
+                        <span>Dark mode</span>
+                    </label>
+                </div>
+                <div class="margin-top-10">
+                    <label>Stop tracking if no activity detected for: </label>
+                    <div class="tooltip"><img src="/icons/info.gif" height="24" />
+                        <span class="tooltiptext">An activity is an action with a mouse or keyboard</span>
+                    </div>
+                    <div class="margin-top-10">
+                        <select id='intervalInactivity' class="option">
+                            <option value="30">30 seconds</option>
+                            <option value="45">45 seconds</option>
+                            <option value="60">1 min</option>
+                            <option value="120">2 min</option>
+                            <option value="300">5 mins</option>
+                            <option value="600">10 mins</option>
+                            <option value="1200">20 mins</option>
+                            <option value="1800">30 mins</option>
+                        </select>
+                    </div>
+                   
+				    <div class="margin-top-10">
+                        <label>Ignored list of domain: </label>
+                        <div class="tooltip"><img src="/icons/info.gif" height="18" />
+                            <span class="tooltiptext">Activity for these domains will not be tracked</span>
+                        </div>
+                        <div class="margin-top-10">
+                            <ul id='blackList' class="listbox" size="7"></ul>
+                        </div>
+                        <div class="margin-top-10">
+                            <input type="text" placeholder="Enter site name..." id='addBlackSiteLbl' />
+                            <input title="Press to add the site url to the list" type="button" value="+" id='addBlackSiteBtn' />
+                        </div>
+                        <div class="notify warning" id='notifyForBlackList' hidden>
+                            The site is already in the list
+                        </div>
+                    </div>
+					
+                    <div class="margin-top-10">
+                        <input type="button" value="Export to CSV" id='exportToCsv'>
+                    </div>
+                    <div class="margin-top-10">
+                        <input type="button" value="Backup" id='backup'>
+                        <input type="button" value="Restore" id='restore'>
+                        <input id="file-input-backup" class="hidden" type="file" name="backupFile" />
+                    </div>
+                    <div class="notify" id='notify-backup' hidden>
+                        Backup completed successfully
+                    </div>
+                    <div class="notify" id='notify-restore' hidden>
+                        Restore completed successfully
+                    </div>
+                    <div class="notify warning" id='notify-restore-failed' hidden>
+                        Backup file is not valid
+                    </div>
+                    
+                    <div class="margin-top-10">
+                        <label>Data in memory use </label><label id='memoryUse'></label>
+                    </div>
+                    <div class="margin-top-10"><input type="button" value="Clear all data" id='clearAllData'></div>
+                    <div class="notify" id='notify' hidden>
+                        Data successfully deleted
+                    </div>
+                </div>
+            </div>
+            <div id='restrictionsBlock' hidden>
+             <label>Access daily restrictions for websites: </label>
+                <div class="tooltip"><img src="/icons/info.gif" height="18" />
+                    <span class="tooltiptext">Set the time you can spend on the site during the day. After this time,
+                        access
+                        to the site will be blocked.</span>
+                </div>
+                <div class="margin-top-10">
+                    <input type="text" class="label-with-list" placeholder="Enter site name..."
+                        id='addRestrictionSiteLbl' />
+                    <div class="inline-block clockpicker" data-placement="left" data-align="top" data-autoclose="true">
+                        <input type="text" class="clock" placeholder="Time..." readonly id="addRestrictionTimeLbl">
+                    </div>
+                    <input title="Press to add the site url and time limit for tracking it to the list" type="button" value="+" class="btn-with-list" id='addRestrictionSiteBtn' />
+                </div>
+                <div class="margin-top-10">
+                    <ul id='restrictionsList' class="listbox list" size="10"></ul>
+                </div>
+                <div class="notify warning notify-width-300" id='notifyForRestrictionList' hidden>
+                    The site is already in the list
+                </div>
+            </div>
+			
+            <div id='notifyBlock' hidden>
+                <label>List of sites with notifications: </label>
+                <div class="tooltip"><img src="/icons/info.gif" height="18" />
+                    <span class="tooltiptext">Show notifications every time you spend a specified time interval on the
+                        site</span>
+                </div>
+                <div class="margin-top-10">
+                    <input type="text" class="label-with-list" placeholder="Enter site name..." id='addNotifySiteLbl' />
+                    <div class="inline-block clockpicker" data-placement="left" data-align="top" data-autoclose="true">
+                        <input type="text" class="clock" placeholder="Time..." readonly id="addNotifyTimeLbl">
+                    </div>
+                    <input title="Press to add the site url and time limit after which notification to be popped out to the list" type="button" class="btn-with-list" value="+" id='addNotifySiteBtn' />
+                </div>
+                <div class="margin-top-10">
+                    <ul id='notifyList' class="listbox list" size="10"></ul>
+                </div>
+                <div class="margin-top-10">
+                    <label>You can set message for notification: </label>
+                    <div class="setting-notify-block">
+                        <img src="icons/clock_gif.gif" class="setting-notify-img">
+                        <div class="setting-notify-message-block">
+                            <span class="setting-notify-title">Web Monitor</span>
+                            <input type="text" class="setting-notify-message" id="notifyMessage" />
+                        </div>
+                    </div>
+                </div>
+                <div class="margin-top-10">
+                    <label class="block">In order to Web Monitor showed notifications every time you spend
+                        a specified time interval on the site, you need grant permission to access for notifications.
+                    </label>
+                    <input class="margin-top-10 permission-btn" type="button" value="Grant permission"
+                        id='grantPermissionForNotifications'>
+                    <div id='permissionSuccessedBlockForNotifications' hidden>
+                        <img src="/icons/success.png" height="18" />
+                        <label>Permissions have been granted</label>
+                    </div>
+                </div>
+                <div class="notify warning notify-width-300" id='notifyForNotifyList' hidden>
+                    The site is already in the notify list
+                </div>
+            </div>
+			
+            <div id='aboutBlock' hidden>
+                <div><label id='version'></label></div>
+                <div class="margin-top-20"><label>GitHub: <a
+                            href="https://github.com/Vishwam36/Dev"
+                            target="_blank">https://github.com/Vishwam36/Dev</a></label>
+                </div>
+                <div class="margin-top-20"><label>If you would like to report an issue, you can do so
+                        on
+                        the <a href="https://github.com/Vishwam36/Dev/issues"
+                            target="_blank">GitHub
+                            issues page</a></label>
+                </div>
+            </div>
+            <div id='feedbackBlock' hidden>
+                <div>
+                    <label>You can support Web Monitor by giving feedback:</label>
+                    <div class="margin-top-20">
+                        <div class="inline-block">
+                            <a class="bmc-button" target="_blank" href="https://docs.google.com/forms/d/e/1FAIpQLSd2F1hax6Fq-BnHGnVgKawG0RevbhU4cfQdpzYM1EnPE1Tygg/viewform?usp=sf_link"><img
+                                    src="/icons/feedback.gif" alt="Feedback"><span>Feedback</span></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
